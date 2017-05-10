@@ -24,6 +24,9 @@ class CHECKOUT_YIJIESPPAY extends ISC_CHECKOUT_PROVIDER
        $this->_height = 0;
     }
 
+    /**
+    * 初始化插件的设置项
+    */
     public function SetCustomVars(){
 
         $this->_variables['displayname'] = array(
@@ -99,6 +102,9 @@ class CHECKOUT_YIJIESPPAY extends ISC_CHECKOUT_PROVIDER
         );
     }
 
+    /**
+    * 组织支付相关需要提交的参数，参数要求请阅读易极付相关的文档
+    */
     public function TransferToProvider()
     {
         $requset_data = array();
@@ -172,7 +178,9 @@ class CHECKOUT_YIJIESPPAY extends ISC_CHECKOUT_PROVIDER
         $this->RedirectToProvider($requset_url, $requset_data);
     }
 
-
+    /**
+    * 更具参数获取sign加密值这里主要使用MD5算法加密
+    */
     public function getSignString(array $items){
         ksort($items);
         $signString = '';
@@ -225,6 +233,9 @@ class CHECKOUT_YIJIESPPAY extends ISC_CHECKOUT_PROVIDER
 
     }
 
+    /**
+    * 检查回调的参数sign加密是否合法
+    */
     public function checkNotifySign($items = array()){
 
         $sign = $items['sign'];
@@ -251,6 +262,9 @@ class CHECKOUT_YIJIESPPAY extends ISC_CHECKOUT_PROVIDER
 
     }
 
+    /**
+    * 获取用户的IP地址
+    */
     function getIp(){
         if(!empty($_SERVER["HTTP_CLIENT_IP"])){
             $cip = $_SERVER["HTTP_CLIENT_IP"];
@@ -263,6 +277,10 @@ class CHECKOUT_YIJIESPPAY extends ISC_CHECKOUT_PROVIDER
         }
         return $cip;
     }
+
+    /**
+    * 跳转到收银台
+    */
     public function RedirectToProvider($url,$fields=array()){
         $formFields = '';
         foreach($fields as $name => $value) {
@@ -293,14 +311,16 @@ class CHECKOUT_YIJIESPPAY extends ISC_CHECKOUT_PROVIDER
 				    $("#form_pay").submit();
 				})
 			</script>
-			
-		';
 
+		';
         $GLOBALS['ISC_CLASS_TEMPLATE']->SetPageTitle(sprintf("%s - %s",'pay','pay'));
         $GLOBALS['ISC_CLASS_TEMPLATE']->SetTemplate("checkout_paypage");
         $GLOBALS['ISC_CLASS_TEMPLATE']->ParseTemplate();
     }
 
+    /**
+    * 预授权操作
+    */
     public function authorizingAction($orderNo,$resolveReason,$isAccept = 'true'){
         //$get_orderinfo = " SELECT `ordpayproviderid` FROM [|PREFIX|]orders WHERE orderid  = ".$orderNo;
 
@@ -350,6 +370,10 @@ class CHECKOUT_YIJIESPPAY extends ISC_CHECKOUT_PROVIDER
 
     }
 
+    /**
+    * 退款操作
+    *
+    */
     public function refundAction($OrderNo,$refundAmount,$refundReason){
         $request_data['merchOrderNo'] = $OrderNo;
         $request_data['originalMerchOrderNo'] = $OrderNo;
@@ -368,6 +392,10 @@ class CHECKOUT_YIJIESPPAY extends ISC_CHECKOUT_PROVIDER
         echo $this->vpost($this->GetValue('gateway'),$request_data);
     }
 
+    /**
+    * 使用curl发起请求操作
+    *
+    */
     function vpost($url,$data){ // 模拟提交数据函数
         $curl = curl_init(); // 启动一个CURL会话
         curl_setopt($curl, CURLOPT_URL, $url); // 要访问的地址
