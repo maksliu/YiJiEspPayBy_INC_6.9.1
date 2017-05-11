@@ -15,6 +15,10 @@ Hk目录下为境外渠道 Cn目录下为境内渠道
 
 * 完成上一步后您会看到上方导航条会出现YijiPay这项，点击后按照提示填写您的配置保存后即可使用
 
+# 联调测试
+
+[境外环境](https://github.com/manarchliu/YiJiEspPayBy_INC_6.9.1/tree/master/Hk/test.md)
+
 # 文档
 
 请[移步](https://github.com/manarchliu/YiJiEspPayBy_INC_6.9.1/blob/master/Document/YijiPay.md)
