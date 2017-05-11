@@ -9,35 +9,35 @@
 
   1. 下载
 
-    ![第1步](https://github.com/manarchliu/YiJiEspPayBy_INC_6.9.1/blob/master/Document/images/inc_1.png)
+  ![第1步](https://github.com/manarchliu/YiJiEspPayBy_INC_6.9.1/blob/master/Document/images/inc_1.png)
 
   1. 解压
 
-    ![第2步](https://github.com/manarchliu/YiJiEspPayBy_INC_6.9.1/blob/master/Document/images/inc_2.png)
+  ![第2步](https://github.com/manarchliu/YiJiEspPayBy_INC_6.9.1/blob/master/Document/images/inc_2.png)
 
   1. 拷贝文件
 
-    ![第3步](https://github.com/manarchliu/YiJiEspPayBy_INC_6.9.1/blob/master/Document/images/inc_3.png)
+  ![第3步](https://github.com/manarchliu/YiJiEspPayBy_INC_6.9.1/blob/master/Document/images/inc_3.png)
 
   1. 粘贴文件 1
 
-    ![第4步](https://github.com/manarchliu/YiJiEspPayBy_INC_6.9.1/blob/master/Document/images/inc_4.png)
+  ![第4步](https://github.com/manarchliu/YiJiEspPayBy_INC_6.9.1/blob/master/Document/images/inc_4.png)
 
   1. 粘贴文件 2
 
-    ![第5步](https://github.com/manarchliu/YiJiEspPayBy_INC_6.9.1/blob/master/Document/images/inc_5.png)
+  ![第5步](https://github.com/manarchliu/YiJiEspPayBy_INC_6.9.1/blob/master/Document/images/inc_5.png)
 
   1. 后台设置 1
 
-    ![第6步](https://github.com/manarchliu/YiJiEspPayBy_INC_6.9.1/blob/master/Document/images/inc_6.png)
+  ![第6步](https://github.com/manarchliu/YiJiEspPayBy_INC_6.9.1/blob/master/Document/images/inc_6.png)
 
   1. 后台设置 2
 
-    ![第7步](https://github.com/manarchliu/YiJiEspPayBy_INC_6.9.1/blob/master/Document/images/inc_7.png)
+  ![第7步](https://github.com/manarchliu/YiJiEspPayBy_INC_6.9.1/blob/master/Document/images/inc_7.png)
 
   1. 保存后台设置
 
-    ![第8步](https://github.com/manarchliu/YiJiEspPayBy_INC_6.9.1/blob/master/Document/images/inc_8.png)
+  ![第8步](https://github.com/manarchliu/YiJiEspPayBy_INC_6.9.1/blob/master/Document/images/inc_8.png)
 
 
 `注：本方式仅提供参考，具体操作更具您的环境操作，但是原理都是一致的。`
