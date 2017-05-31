@@ -6,7 +6,7 @@
  * Date: 2017/5/3
  * Time: 11:32
  */
-class CHECKOUT_YIJIESPPAY extends ISC_CHECKOUT_PROVIDER
+class CHECKOUT_YIJIESPPAYCN extends ISC_CHECKOUT_PROVIDER
 {
 
     /**
@@ -15,7 +15,6 @@ class CHECKOUT_YIJIESPPAY extends ISC_CHECKOUT_PROVIDER
      */
     public function __construct()
     {
-        // Setup the required variables for the WorldPay checkout module
         parent::__construct();
         $this->_name = GetLang('YiJiPayName');
         $this->_image = "yijipay.jpg";
@@ -24,9 +23,6 @@ class CHECKOUT_YIJIESPPAY extends ISC_CHECKOUT_PROVIDER
        $this->_height = 0;
     }
 
-    /**
-    * 初始化插件的设置项
-    */
     public function SetCustomVars(){
 
         $this->_variables['displayname'] = array(
@@ -102,10 +98,10 @@ class CHECKOUT_YIJIESPPAY extends ISC_CHECKOUT_PROVIDER
         );
 
         $this->_variables['Language'] = array(
-            "name" => "payment language",
+            "name" => "Jump Mode",
             "type" => "dropdown",
-            "help" => GetLang('payment language'),
-                    //"default" => $this->GetName(),
+            "help" => GetLang('YiJiPayLanguageHelp'),
+            "default" => 'en',
             "options"=>array(
                 'English'=>'en',
                 'Japanese'=>'jp',
@@ -118,16 +114,14 @@ class CHECKOUT_YIJIESPPAY extends ISC_CHECKOUT_PROVIDER
 
     }
 
-    /**
-    * 组织支付相关需要提交的参数，参数要求请阅读易极付相关的文档
-    */
     public function TransferToProvider()
     {
         $requset_data = array();
 
         $requset_url = $this->GetValue('gateway');
 
-        $requset_data['service'] = 'cardAcquiringCashierPay';
+        $requset_data['protocol'] = 'httpGet';
+        $requset_data['service'] = 'espOrderPay';
         $requset_data['version'] = '1.0';
         $requset_data['partnerId'] = $this->GetValue('partnerId');
         $requset_data['userId'] = $this->GetValue('userId');
@@ -136,7 +130,9 @@ class CHECKOUT_YIJIESPPAY extends ISC_CHECKOUT_PROVIDER
         $requset_data['webSite'] = $this->GetValue('webSite');
         $requset_data['merchOrderNo'] = $this->GetCombinedOrderId();
         $requset_data['currency'] = 'USD';
-        $requset_data['orderAmount'] = $this->GetGatewayAmount();
+        $requset_data['amount'] = $this->GetGatewayAmount();
+        session_start();
+        $requset_data['deviceFingerprintId'] = session_id();
         $requset_data['acquiringType'] = $this->GetValue('acquiringType');
         $requset_data['returnUrl'] = GetConfig('ShopPathSSL').'/finishorder.php';
         $requset_data['notifyUrl'] = GetConfig('ShopPathSSL').'/checkout.php?action=gateway_ping&provider='.$this->GetId();
@@ -157,7 +153,7 @@ class CHECKOUT_YIJIESPPAY extends ISC_CHECKOUT_PROVIDER
             $orderGoodsInfo[$k]['itemSharpUnitPrice'] = $v['base_price'];
         }
 
-        $requset_data['goodsInfoOrders'] = json_encode($orderGoodsInfo);
+        $requset_data['goodsInfoList'] = json_encode($orderGoodsInfo);
 
         $billingDetails = $this->GetBillingDetails();
         $ShippingAddress = $this->getShippingAddress();
@@ -188,16 +184,13 @@ class CHECKOUT_YIJIESPPAY extends ISC_CHECKOUT_PROVIDER
             'customerEmail'=>$ShippingAddress['email'],
             'customerPhonenumber'=>$ShippingAddress['phone'],
         );
-        $requset_data['attachDetails'] = json_encode($attachDetails);
+        $requset_data['orderDetail'] = json_encode($attachDetails);
         $requset_data['language'] = $this->GetValue('Language');
-
         $requset_data['sign'] = $this->getSignString($requset_data);
         $this->RedirectToProvider($requset_url, $requset_data);
     }
 
-    /**
-    * 更具参数获取sign加密值这里主要使用MD5算法加密
-    */
+
     public function getSignString(array $items){
         ksort($items);
         $signString = '';
@@ -250,9 +243,6 @@ class CHECKOUT_YIJIESPPAY extends ISC_CHECKOUT_PROVIDER
 
     }
 
-    /**
-    * 检查回调的参数sign加密是否合法
-    */
     public function checkNotifySign($items = array()){
 
         $sign = $items['sign'];
@@ -279,9 +269,6 @@ class CHECKOUT_YIJIESPPAY extends ISC_CHECKOUT_PROVIDER
 
     }
 
-    /**
-    * 获取用户的IP地址
-    */
     function getIp(){
         if(!empty($_SERVER["HTTP_CLIENT_IP"])){
             $cip = $_SERVER["HTTP_CLIENT_IP"];
@@ -294,10 +281,6 @@ class CHECKOUT_YIJIESPPAY extends ISC_CHECKOUT_PROVIDER
         }
         return $cip;
     }
-
-    /**
-    * 跳转到收银台
-    */
     public function RedirectToProvider($url,$fields=array()){
         $formFields = '';
         foreach($fields as $name => $value) {
@@ -310,7 +293,7 @@ class CHECKOUT_YIJIESPPAY extends ISC_CHECKOUT_PROVIDER
                     alert(window.location.href);
                 </script>
             </iframe>
-			<form id="form_pay" action="'.$url.'" method="post" style="margin-top: 50px; text-align: center;" target="iframe_a">
+			<form id="form_pay" action="'.$url.'" method="get" style="margin-top: 50px; text-align: center;" target="iframe_a">
 				<noscript><input type="submit" value="'.GetLang('ClickIfNotRedirected').'" /></noscript>
 				<div id="ContinueButton" style="display: none;">
 					<!--input type="submit" value="'.GetLang('ClickIfNotRedirected').'" /-->
@@ -330,14 +313,12 @@ class CHECKOUT_YIJIESPPAY extends ISC_CHECKOUT_PROVIDER
 			</script>
 
 		';
+
         $GLOBALS['ISC_CLASS_TEMPLATE']->SetPageTitle(sprintf("%s - %s",'pay','pay'));
         $GLOBALS['ISC_CLASS_TEMPLATE']->SetTemplate("checkout_paypage");
         $GLOBALS['ISC_CLASS_TEMPLATE']->ParseTemplate();
     }
 
-    /**
-    * 预授权操作
-    */
     public function authorizingAction($orderNo,$resolveReason,$isAccept = 'true'){
         //$get_orderinfo = " SELECT `ordpayproviderid` FROM [|PREFIX|]orders WHERE orderid  = ".$orderNo;
 
@@ -348,12 +329,12 @@ class CHECKOUT_YIJIESPPAY extends ISC_CHECKOUT_PROVIDER
         //}
         //var_dump($result_data);exit;
         $request_data = array();
-        $request_data['merchOrderNo'] = $orderNo;
-        $request_data['originalMerchOrderNo'] = $orderNo;
+        //$request_data['merchOrderNo'] = $orderNo;
+        //$request_data['originalMerchOrderNo'] = $orderNo;
         $request_data['isAccept'] = $isAccept;
         $request_data['resolveReason'] = $resolveReason;
 
-        $request_data['service'] = 'cardAcquiringPresaleResult';
+        $request_data['service'] = 'espOrderJudgment';
         $request_data['version'] = '1.0';
         $request_data['partnerId'] = $this->GetValue('partnerId');
         $request_data['orderNo'] = date('YmdHis').mt_rand(1000000,9999999);
@@ -387,32 +368,24 @@ class CHECKOUT_YIJIESPPAY extends ISC_CHECKOUT_PROVIDER
 
     }
 
-    /**
-    * 退款操作
-    *
-    */
-    public function refundAction($OrderNo,$refundAmount,$refundReason){
-        $request_data['merchOrderNo'] = $OrderNo;
-        $request_data['originalMerchOrderNo'] = $OrderNo;
-        $request_data['refundAmount'] = $refundAmount;
-        $request_data['refundReason'] = $refundReason;
+//    public function refundAction($OrderNo,$refundAmount,$refundReason){
+//        $request_data['merchOrderNo'] = $OrderNo;
+//        $request_data['originalMerchOrderNo'] = $OrderNo;
+//        $request_data['refundAmount'] = $refundAmount;
+//        $request_data['refundReason'] = $refundReason;
+//
+//        $request_data['service'] = 'espRefund';
+//        $request_data['version'] = '1.0';
+//        $request_data['partnerId'] = $this->GetValue('partnerId');
+//        $request_data['orderNo'] = date('YmdHis').mt_rand(1000000,9999999);
+//        $request_data['signType'] = 'MD5' ;
+//        $request_data['returnUrl'] = GetConfig('ShopPathSSL').'/finishorder.php';
+//        $request_data['notifyUrl'] = GetConfig('ShopPathSSL').'/checkout.php?action=gateway_ping&provider='.$this->GetId();
+//        $signType = $this->getSignString($request_data);
+//        $request_data['sign'] = $signType;
+//        echo $this->vpost($this->GetValue('gateway'),$request_data);
+//    }
 
-        $request_data['service'] = 'cardAcquiringRefund';
-        $request_data['version'] = '1.0';
-        $request_data['partnerId'] = $this->GetValue('partnerId');
-        $request_data['orderNo'] = date('YmdHis').mt_rand(1000000,9999999);
-        $request_data['signType'] = 'MD5' ;
-        $request_data['returnUrl'] = GetConfig('ShopPathSSL').'/finishorder.php';
-        $request_data['notifyUrl'] = GetConfig('ShopPathSSL').'/checkout.php?action=gateway_ping&provider='.$this->GetId();
-        $signType = $this->getSignString($request_data);
-        $request_data['sign'] = $signType;
-        echo $this->vpost($this->GetValue('gateway'),$request_data);
-    }
-
-    /**
-    * 使用curl发起请求操作
-    *
-    */
     function vpost($url,$data){ // 模拟提交数据函数
         $curl = curl_init(); // 启动一个CURL会话
         curl_setopt($curl, CURLOPT_URL, $url); // 要访问的地址
